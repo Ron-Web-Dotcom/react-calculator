@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Lora:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:ital,wght@0,100..700;1,100..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,164 +6,86 @@
 
 @layer base {
   :root {
-    /* ⚠️ AGENT MUST REPLACE: These are placeholder colors. You MUST define a custom palette before writing components. */
-    /* The template uses distinctive placeholder colors to force customization - do NOT use these in production! */
-    
-    /* 
-     * EXAMPLE PALETTES (use as inspiration, replace with your own):
-     * 
-     * Modern SaaS (Business/Enterprise):
-     * --primary: 217 91% 60%;        (Blue #2563EB)
-     * --accent: 217 91% 65%;         (Lighter blue #3B82F6)
-     * 
-     * Bold Tech (Startups/Developer Tools):
-     * --primary: 262 83% 58%;        (Purple #8B5CF6)
-     * --accent: 262 83% 68%;         (Lighter purple #A855F7)
-     * 
-     * Quantum Rose (Creative/Design):
-     * --primary: 330 81% 50%;        (Pink #E6067A)
-     * --accent: 330 81% 70%;         (Lighter pink #F472B6)
-     * 
-     * Ocean Depth (Calm/Professional):
-     * --primary: 200 98% 39%;        (Deep teal #0D9488)
-     * --accent: 200 98% 50%;         (Teal #14B8A6)
-     * 
-     * Sunset Warmth (Friendly/Welcoming):
-     * --primary: 24 95% 53%;         (Orange #F97316)
-     * --accent: 24 95% 63%;          (Lighter orange #FB923C)
-     */
-    
-    /* Colors - REPLACE ALL VALUES BELOW with your custom palette */
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    /* ⚠️ PLACEHOLDER: Replace with your custom primary color (NOT green, NOT blue) */
-    --primary: 239 84% 67%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222 47% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    /* ⚠️ PLACEHOLDER: Replace with your custom accent color */
-    --accent: 233 89% 74%;
-    --accent-foreground: 222 47% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    /* ⚠️ PLACEHOLDER: Replace with your custom ring color (usually matches primary) */
-    --ring: 239 84% 67%;
+    --background: 180 20% 4%;
+    --foreground: 180 10% 98%;
+    --card: 180 20% 8%;
+    --card-foreground: 180 10% 98%;
+    --popover: 180 20% 8%;
+    --popover-foreground: 180 10% 98%;
+    --primary: 175 80% 45%;
+    --primary-foreground: 180 10% 98%;
+    --secondary: 180 15% 15%;
+    --secondary-foreground: 180 10% 98%;
+    --muted: 180 15% 12%;
+    --muted-foreground: 180 10% 65%;
+    --accent: 175 80% 45%;
+    --accent-foreground: 180 10% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 180 10% 98%;
+    --border: 180 15% 15%;
+    --input: 180 15% 15%;
+    --ring: 175 80% 45%;
+    --radius: 1rem;
 
-    /* Charts - ⚠️ PLACEHOLDER: Replace with your custom chart colors */
-    --chart-1: 239 84% 67%;
-    --chart-2: 300 70% 50%;
-    --chart-3: 320 70% 50%;
-    --chart-4: 340 70% 50%;
-    --chart-5: 0 70% 50%;
-
-    /* Sidebar - ⚠️ PLACEHOLDER: Replace with your custom sidebar colors */
-    --sidebar: 210 40% 96.1%;
-    --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 239 84% 67%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 233 89% 74%;
-    --sidebar-accent-foreground: 222 47% 11.2%;
-    --sidebar-border: 214.3 31.8% 91.4%;
-    --sidebar-ring: 239 84% 67%;
-
-    /* Fonts */
-    --font-sans: DM Sans, sans-serif;
-    --font-serif: Lora, serif;
-    --font-mono: IBM Plex Mono, monospace;
-
-    /* Shadows */
-    --shadow-2xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
-    --shadow-xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
-    --shadow-sm: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 1px 2px -2px hsl(0 0% 0% / 0.10);
-    --shadow: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 1px 2px -2px hsl(0 0% 0% / 0.10);
-    --shadow-md: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 2px 4px -2px hsl(0 0% 0% / 0.10);
-    --shadow-lg: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 4px 6px -2px hsl(0 0% 0% / 0.10);
-    --shadow-xl: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 8px 10px -2px hsl(0 0% 0% / 0.10);
-    --shadow-2xl: 0px 4px 8px -1px hsl(0 0% 0% / 0.25);
-
-    /* Misc */
-    --tracking-normal: 0em;
-    --spacing: 0.25rem;
-    --radius: 0.75rem;
+    --font-sans: 'Geist', sans-serif;
+    --font-mono: 'Geist Mono', monospace;
   }
+}
 
-  .dark {
-    /* ⚠️ AGENT MUST REPLACE: Dark mode colors - replace with your custom dark palette */
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
-    /* ⚠️ PLACEHOLDER: Replace with your custom dark mode primary color */
-    --primary: 239 84% 67%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    /* ⚠️ PLACEHOLDER: Replace with your custom dark mode accent color */
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 239 84% 67%;
-
-    /* ⚠️ PLACEHOLDER: Replace with your custom dark mode chart colors */
-    --chart-1: 239 84% 67%;
-    --chart-2: 300 65% 55%;
-    --chart-3: 320 65% 55%;
-    --chart-4: 340 65% 55%;
-    --chart-5: 0 65% 55%;
-
-    /* ⚠️ PLACEHOLDER: Replace with your custom dark mode sidebar colors */
-    --sidebar: 217.2 32.6% 17.5%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 239 84% 67%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 217.2 32.6% 17.5%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217.2 32.6% 17.5%;
-    --sidebar-ring: 239 84% 67%;
-  }
-
+@layer base {
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-sans), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-    letter-spacing: var(--tracking-normal);
+    @apply bg-background text-foreground antialiased selection:bg-primary/30 min-h-screen;
+    font-feature-settings: "rlig" 1, "calt" 1;
     background-image: 
-      radial-gradient(at 0% 0%, hsla(var(--primary) / 0.05) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, hsla(var(--primary) / 0.05) 0px, transparent 50%);
-    background-attachment: fixed;
+      radial-gradient(at 0% 0%, hsla(175, 80%, 45%, 0.15) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(175, 80%, 45%, 0.15) 0px, transparent 50%),
+      radial-gradient(at 50% 50%, hsla(175, 80%, 45%, 0.05) 0px, transparent 80%);
   }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-in-out;
+.glass-panel {
+  @apply bg-card/40 backdrop-blur-2xl border border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
+.glass-button {
+  @apply bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 active:scale-95 transition-all duration-200;
+}
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.display-text {
+  @apply tracking-tighter;
+  text-shadow: 0 0 30px hsla(var(--primary) / 0.3);
+}
+
+.calc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background-color: hsla(var(--border) / 0.5);
+  @apply p-[1px] rounded-b-lg overflow-hidden;
+}
+
+.key-pressed {
+  animation: tap 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes tap {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); opacity: 0.8; }
+  100% { transform: scale(1); }
+}
+
+.history-item {
+  @apply relative overflow-hidden transition-all duration-300 hover:bg-white/5 p-3 rounded-lg cursor-pointer;
+}
+
+.history-item::after {
+  content: '';
+  @apply absolute bottom-0 left-0 w-0 h-[1px] bg-primary transition-all duration-300;
+}
+
+.history-item:hover::after {
+  @apply w-full;
 }

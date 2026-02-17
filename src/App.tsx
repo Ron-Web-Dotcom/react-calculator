@@ -4,8 +4,8 @@ import OperationButton from "./OperationButton"
 import { Button } from "./components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card"
 import { ScrollArea } from "./components/ui/scroll-area"
-import { History, Trash2, Keyboard } from "lucide-react"
-import "./styles.css"
+import { History, Trash2, Keyboard, Calculator as CalcIcon, Eraser } from "lucide-react"
+import { cn } from "./lib/utils"
 
 export const ACTIONS = {
   ADD_DIGIT: "add-digit",
@@ -16,6 +16,8 @@ export const ACTIONS = {
   PERCENT: "percent",
   TOGGLE_SIGN: "toggle-sign",
   CLEAR_HISTORY: "clear-history",
+  SET_HISTORY_ITEM: "set-history-item",
+  SCIENTIFIC_OPERATION: "scientific-operation",
 } as const
 
 type ActionType = typeof ACTIONS[keyof typeof ACTIONS]
@@ -81,6 +83,40 @@ function reducer(state: State, { type, payload }: Action): State {
         operation: payload?.operation,
         currentOperand: null,
       }
+    case ACTIONS.SCIENTIFIC_OPERATION:
+      if (state.currentOperand == null) return state
+      const currentVal = parseFloat(state.currentOperand)
+      let scientificResult = 0
+      let scientificExpression = ""
+
+      switch (payload?.operation) {
+        case "sqrt":
+          scientificResult = Math.sqrt(currentVal)
+          scientificExpression = `√(${state.currentOperand})`
+          break
+        case "square":
+          scientificResult = Math.pow(currentVal, 2)
+          scientificExpression = `(${state.currentOperand})²`
+          break
+        case "reciprocal":
+          scientificResult = 1 / currentVal
+          scientificExpression = `1/(${state.currentOperand})`
+          break
+        case "abs":
+          scientificResult = Math.abs(currentVal)
+          scientificExpression = `|${state.currentOperand}|`
+          break
+        default:
+          return state
+      }
+
+      const resString = scientificResult.toString()
+      return {
+        ...state,
+        currentOperand: resString,
+        overwrite: true,
+        history: [{ expression: scientificExpression, result: resString }, ...state.history].slice(0, 10)
+      }
     case ACTIONS.CLEAR:
       return { ...state, currentOperand: null, previousOperand: null, operation: null, overwrite: false }
     case ACTIONS.DELETE_DIGIT:
@@ -103,9 +139,12 @@ function reducer(state: State, { type, payload }: Action): State {
     case ACTIONS.PERCENT:
       if (state.currentOperand == null) return state
       const value = parseFloat(state.currentOperand)
+      const percentRes = (value / 100).toString()
       return {
         ...state,
-        currentOperand: (value / 100).toString()
+        currentOperand: percentRes,
+        overwrite: true,
+        history: [{ expression: `${state.currentOperand}%`, result: percentRes }, ...state.history].slice(0, 10)
       }
     case ACTIONS.TOGGLE_SIGN:
       if (state.currentOperand == null) return state
@@ -133,6 +172,12 @@ function reducer(state: State, { type, payload }: Action): State {
         currentOperand: result,
         history: [{ expression, result }, ...state.history].slice(0, 10)
       }
+    case ACTIONS.SET_HISTORY_ITEM:
+      return {
+        ...state,
+        currentOperand: payload?.digit,
+        overwrite: true
+      }
     case ACTIONS.CLEAR_HISTORY:
       return { ...state, history: [] }
     default:
@@ -158,6 +203,9 @@ function evaluate({ currentOperand, previousOperand, operation }: State): string
     case "÷":
       computation = prev / current
       break
+    case "^":
+      computation = Math.pow(prev, current)
+      break
   }
 
   return computation.toString()
@@ -181,6 +229,7 @@ function App() {
   )
 
   const [showHistory, setShowHistory] = useState(false)
+  const [pressedKey, setPressedKey] = useState<string | null>(null)
 
   useEffect(() => {
     localStorage.setItem("calc-history", JSON.stringify(history))
@@ -188,6 +237,10 @@ function App() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      let key = e.key
+      setPressedKey(key)
+      setTimeout(() => setPressedKey(null), 150)
+
       if (/\d/.test(e.key)) {
         dispatch({ type: ACTIONS.ADD_DIGIT, payload: { digit: e.key } })
       } else if (e.key === ".") {
@@ -203,6 +256,14 @@ function App() {
         dispatch({ type: ACTIONS.CLEAR })
       } else if (e.key === "%") {
         dispatch({ type: ACTIONS.PERCENT })
+      } else if (e.key === "s") {
+        dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "sqrt" } })
+      } else if (e.key === "p") {
+        dispatch({ type: ACTIONS.CHOOSE_OPERATION, payload: { operation: "^" } })
+      } else if (e.key === "r") {
+        dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "reciprocal" } })
+      } else if (e.key === "a") {
+        dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "abs" } })
       }
     }
 
@@ -211,118 +272,196 @@ function App() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 shadow-xl border-2 overflow-hidden bg-card transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-xl font-bold flex items-center gap-2">
-              <Keyboard className="w-5 h-5" />
-              Calculator
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 md:p-8">
+      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-4 gap-6 animate-fade-in">
+        <Card className="lg:col-span-3 glass-panel overflow-hidden border-none transition-all duration-500 hover:shadow-primary/10 hover:shadow-2xl">
+          <CardHeader className="flex flex-row items-center justify-between py-4 px-6 space-y-0 bg-white/5">
+            <CardTitle className="text-xl font-bold flex items-center gap-3 text-primary">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <CalcIcon className="w-5 h-5" />
+              </div>
+              <span className="tracking-tight">Pro Calculator</span>
             </CardTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden"
-              onClick={() => setShowHistory(!showHistory)}
-            >
-              <History className="w-5 h-5" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden hover:bg-white/10"
+                onClick={() => setShowHistory(!showHistory)}
+              >
+                <History className="w-5 h-5" />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="output bg-slate-950/90 p-8 flex flex-col items-end justify-center gap-2 min-h-[160px] text-right">
-              <div className="previous-operand text-slate-400 font-medium tracking-wide text-lg h-7">
+            <div className="output bg-black/40 p-10 flex flex-col items-end justify-center gap-3 min-h-[200px] text-right border-b border-white/5">
+              <div className="previous-operand text-muted-foreground/60 font-medium tracking-wider text-xl h-8 overflow-hidden whitespace-nowrap">
                 {formatOperand(previousOperand)} {operation}
               </div>
-              <div className="current-operand text-white text-5xl font-bold tracking-tight break-all">
+              <div className="current-operand text-foreground text-6xl md:text-7xl font-bold tracking-tighter break-all display-text selection:bg-primary/20">
                 {formatOperand(currentOperand) || "0"}
               </div>
             </div>
             
-            <div className="grid grid-cols-4 gap-[1px] bg-border/50">
-              <Button
-                variant="secondary"
-                className="h-20 text-xl font-semibold rounded-none hover:bg-muted/80"
-                onClick={() => dispatch({ type: ACTIONS.CLEAR })}
-              >
-                AC
-              </Button>
-              <Button
-                variant="secondary"
-                className="h-20 text-xl font-semibold rounded-none hover:bg-muted/80"
-                onClick={() => dispatch({ type: ACTIONS.TOGGLE_SIGN })}
-              >
-                +/-
-              </Button>
-              <Button
-                variant="secondary"
-                className="h-20 text-xl font-semibold rounded-none hover:bg-muted/80"
-                onClick={() => dispatch({ type: ACTIONS.PERCENT })}
-              >
-                %
-              </Button>
-              <OperationButton operation="÷" dispatch={dispatch} className="h-20 text-2xl font-bold rounded-none bg-primary hover:bg-primary/90 text-primary-foreground" />
-              
-              <DigitButton digit="7" dispatch={dispatch} className="h-20 text-xl rounded-none bg-card hover:bg-muted" />
-              <DigitButton digit="8" dispatch={dispatch} className="h-20 text-xl rounded-none bg-card hover:bg-muted" />
-              <DigitButton digit="9" dispatch={dispatch} className="h-20 text-xl rounded-none bg-card hover:bg-muted" />
-              <OperationButton operation="*" dispatch={dispatch} className="h-20 text-2xl font-bold rounded-none bg-primary hover:bg-primary/90 text-primary-foreground" />
-              
-              <DigitButton digit="4" dispatch={dispatch} className="h-20 text-xl rounded-none bg-card hover:bg-muted" />
-              <DigitButton digit="5" dispatch={dispatch} className="h-20 text-xl rounded-none bg-card hover:bg-muted" />
-              <DigitButton digit="6" dispatch={dispatch} className="h-20 text-xl rounded-none bg-card hover:bg-muted" />
-              <OperationButton operation="+" dispatch={dispatch} className="h-20 text-2xl font-bold rounded-none bg-primary hover:bg-primary/90 text-primary-foreground" />
-              
-              <DigitButton digit="1" dispatch={dispatch} className="h-20 text-xl rounded-none bg-card hover:bg-muted" />
-              <DigitButton digit="2" dispatch={dispatch} className="h-20 text-xl rounded-none bg-card hover:bg-muted" />
-              <DigitButton digit="3" dispatch={dispatch} className="h-20 text-xl rounded-none bg-card hover:bg-muted" />
-              <OperationButton operation="-" dispatch={dispatch} className="h-20 text-2xl font-bold rounded-none bg-primary hover:bg-primary/90 text-primary-foreground" />
-              
-              <DigitButton digit="." dispatch={dispatch} className="h-20 text-xl rounded-none bg-card hover:bg-muted" />
-              <DigitButton digit="0" dispatch={dispatch} className="h-20 text-xl rounded-none bg-card hover:bg-muted" />
-              <Button
-                variant="secondary"
-                className="h-20 text-xl font-semibold rounded-none hover:bg-muted/80"
-                onClick={() => dispatch({ type: ACTIONS.DELETE_DIGIT })}
-              >
-                DEL
-              </Button>
-              <Button
-                className="h-20 text-2xl font-bold rounded-none bg-primary hover:bg-primary/90 text-primary-foreground"
-                onClick={() => dispatch({ type: ACTIONS.EVALUATE })}
-              >
-                =
-              </Button>
+            <div className="grid grid-cols-4 md:grid-cols-5 bg-white/[0.02]">
+              {/* Scientific Operations (Hidden on small screens, or integrated) */}
+              <div className="col-span-4 md:col-span-1 grid grid-cols-4 md:grid-cols-1 border-r border-white/5 bg-black/20">
+                <Button
+                  variant="ghost"
+                  className="h-16 md:h-20 text-sm font-medium rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-white/5"
+                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "sqrt" } })}
+                >
+                  √x
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-16 md:h-20 text-sm font-medium rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-white/5"
+                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "square" } })}
+                >
+                  x²
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-16 md:h-20 text-sm font-medium rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-white/5"
+                  onClick={() => dispatch({ type: ACTIONS.CHOOSE_OPERATION, payload: { operation: "^" } })}
+                >
+                  xʸ
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-16 md:h-20 text-sm font-medium rounded-none hover:bg-primary/10 hover:text-primary transition-colors md:border-none"
+                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "reciprocal" } })}
+                >
+                  1/x
+                </Button>
+              </div>
+
+              <div className="col-span-4 grid grid-cols-4 bg-border/20">
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "h-16 md:h-20 text-lg font-bold rounded-none hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-all",
+                    pressedKey === "Escape" && "bg-destructive/20 scale-95"
+                  )}
+                  onClick={() => dispatch({ type: ACTIONS.CLEAR })}
+                >
+                  AC
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-16 md:h-20 text-lg font-medium rounded-none hover:bg-white/5 text-muted-foreground"
+                  onClick={() => dispatch({ type: ACTIONS.TOGGLE_SIGN })}
+                >
+                  +/-
+                </Button>
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "h-16 md:h-20 text-lg font-medium rounded-none hover:bg-white/5 text-muted-foreground",
+                    pressedKey === "%" && "bg-white/10 scale-95"
+                  )}
+                  onClick={() => dispatch({ type: ACTIONS.PERCENT })}
+                >
+                  %
+                </Button>
+                <OperationButton 
+                  operation="÷" 
+                  dispatch={dispatch} 
+                  className="h-16 md:h-20" 
+                  isPressed={pressedKey === "/"}
+                />
+                
+                <DigitButton digit="7" dispatch={dispatch} isPressed={pressedKey === "7"} />
+                <DigitButton digit="8" dispatch={dispatch} isPressed={pressedKey === "8"} />
+                <DigitButton digit="9" dispatch={dispatch} isPressed={pressedKey === "9"} />
+                <OperationButton 
+                  operation="*" 
+                  dispatch={dispatch} 
+                  className="h-16 md:h-20" 
+                  isPressed={pressedKey === "*"}
+                />
+                
+                <DigitButton digit="4" dispatch={dispatch} isPressed={pressedKey === "4"} />
+                <DigitButton digit="5" dispatch={dispatch} isPressed={pressedKey === "5"} />
+                <DigitButton digit="6" dispatch={dispatch} isPressed={pressedKey === "6"} />
+                <OperationButton 
+                  operation="+" 
+                  dispatch={dispatch} 
+                  className="h-16 md:h-20" 
+                  isPressed={pressedKey === "+"}
+                />
+                
+                <DigitButton digit="1" dispatch={dispatch} isPressed={pressedKey === "1"} />
+                <DigitButton digit="2" dispatch={dispatch} isPressed={pressedKey === "2"} />
+                <DigitButton digit="3" dispatch={dispatch} isPressed={pressedKey === "3"} />
+                <OperationButton 
+                  operation="-" 
+                  dispatch={dispatch} 
+                  className="h-16 md:h-20" 
+                  isPressed={pressedKey === "-"}
+                />
+                
+                <DigitButton digit="." dispatch={dispatch} isPressed={pressedKey === "."} />
+                <DigitButton digit="0" dispatch={dispatch} isPressed={pressedKey === "0"} />
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "h-16 md:h-20 text-lg font-medium rounded-none hover:bg-white/5 text-muted-foreground flex items-center justify-center",
+                    pressedKey === "Backspace" && "bg-white/10 scale-95"
+                  )}
+                  onClick={() => dispatch({ type: ACTIONS.DELETE_DIGIT })}
+                >
+                  <Eraser className="w-5 h-5" />
+                </Button>
+                <Button
+                  className={cn(
+                    "h-16 md:h-20 text-3xl font-bold rounded-none bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_20px_hsla(var(--primary)/0.4)]",
+                    (pressedKey === "Enter" || pressedKey === "=") && "bg-primary/80 scale-95"
+                  )}
+                  onClick={() => dispatch({ type: ACTIONS.EVALUATE })}
+                >
+                  =
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className={`lg:block ${showHistory ? 'block' : 'hidden'} lg:col-span-1 shadow-lg border-2 bg-card`}>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-lg font-bold flex items-center gap-2">
-              <History className="w-5 h-5 text-primary" />
+        <Card className={cn(
+          "lg:block glass-panel border-none lg:col-span-1 shadow-2xl transition-all duration-500",
+          showHistory ? 'block' : 'hidden'
+        )}>
+          <CardHeader className="flex flex-row items-center justify-between py-4 px-6 bg-white/5">
+            <CardTitle className="text-lg font-bold flex items-center gap-3 text-primary">
+              <History className="w-5 h-5" />
               History
             </CardTitle>
             <Button 
               variant="ghost" 
               size="icon" 
-              className="text-muted-foreground hover:text-destructive transition-colors"
+              className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all rounded-lg"
               onClick={() => dispatch({ type: ACTIONS.CLEAR_HISTORY })}
             >
               <Trash2 className="w-4 h-4" />
             </Button>
           </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[500px] pr-4">
+          <CardContent className="p-4">
+            <ScrollArea className="h-[400px] lg:h-[600px] pr-4">
               {history.length === 0 ? (
-                <div className="text-center text-muted-foreground py-20">
-                  <p className="text-sm">No history yet</p>
+                <div className="flex flex-col items-center justify-center py-20 opacity-20">
+                  <History className="w-12 h-12 mb-4" />
+                  <p className="text-sm font-medium uppercase tracking-widest">Empty</p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {history.map((item, index) => (
-                    <div key={index} className="flex flex-col items-end border-b border-border/50 pb-3 group">
-                      <span className="text-xs text-muted-foreground mb-1 group-hover:text-primary transition-colors">{item.expression}</span>
-                      <span className="text-xl font-bold text-foreground">={item.result}</span>
+                    <div 
+                      key={index} 
+                      className="history-item flex flex-col items-end group"
+                      onClick={() => dispatch({ type: ACTIONS.SET_HISTORY_ITEM, payload: { digit: item.result } })}
+                    >
+                      <span className="text-xs font-mono text-muted-foreground/60 mb-1 group-hover:text-primary transition-colors">{item.expression}</span>
+                      <span className="text-2xl font-bold text-foreground tracking-tight">={item.result}</span>
                     </div>
                   ))}
                 </div>
