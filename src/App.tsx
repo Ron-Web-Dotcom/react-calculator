@@ -407,20 +407,23 @@ function App() {
       <Toaster position="top-center" richColors />
       <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-4 gap-6 animate-fade-in">
         <Card className="lg:col-span-3 glass-panel overflow-hidden border-none transition-all duration-500 hover:shadow-primary/10 hover:shadow-2xl">
-          <CardHeader className="flex flex-row items-center justify-between py-4 px-6 space-y-0 bg-white/5">
-            <CardTitle className="text-xl font-bold flex items-center gap-3 text-primary">
-              <div className="p-2 bg-primary/10 rounded-lg">
+          <CardHeader className="flex flex-row items-center justify-between py-5 px-6 space-y-0 bg-white/5 overflow-hidden">
+            <CardTitle className="text-xl font-bold flex items-center gap-3 text-primary shrink-0">
+              <div className="p-2.5 bg-primary/10 rounded-xl shadow-inner">
                 <CalcIcon className="w-5 h-5" />
               </div>
-              <span className="tracking-tight">Pro Calculator</span>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 leading-tight">
+                <span className="tracking-tight whitespace-nowrap">Pro</span>
+                <span className="tracking-tight whitespace-nowrap text-foreground/90 font-medium sm:font-bold">Calculator</span>
+              </div>
             </CardTitle>
-            <div className="flex items-center gap-3">
-              <div className="flex bg-black/20 p-1 rounded-lg border border-white/5">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="flex bg-black/20 p-1 rounded-lg border border-white/5 scale-90 sm:scale-100 origin-right">
                 <Button
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "px-3 h-8 text-[10px] font-bold tracking-widest transition-all rounded-md",
+                    "px-2 sm:px-3 h-7 sm:h-8 text-[9px] sm:text-[10px] font-bold tracking-widest transition-all rounded-md",
                     !isRadians ? "bg-primary text-primary-foreground shadow-lg" : "text-muted-foreground hover:text-foreground"
                   )}
                   onClick={() => dispatch({ type: ACTIONS.TOGGLE_UNITS })}
@@ -431,7 +434,7 @@ function App() {
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "px-3 h-8 text-[10px] font-bold tracking-widest transition-all rounded-md",
+                    "px-2 sm:px-3 h-7 sm:h-8 text-[9px] sm:text-[10px] font-bold tracking-widest transition-all rounded-md",
                     isRadians ? "bg-primary text-primary-foreground shadow-lg" : "text-muted-foreground hover:text-foreground"
                   )}
                   onClick={() => dispatch({ type: ACTIONS.TOGGLE_UNITS })}
@@ -440,25 +443,33 @@ function App() {
                 </Button>
               </div>
               
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn("w-8 h-8 rounded-full border border-white/10 bg-[#0D9488]/20 hover:bg-[#0D9488]/40", theme === "ocean" && "ring-2 ring-primary ring-offset-2 ring-offset-background")}
-                  onClick={() => dispatch({ type: ACTIONS.SET_THEME, payload: { operation: "ocean" } })}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn("w-8 h-8 rounded-full border border-white/10 bg-[#D97706]/20 hover:bg-[#D97706]/40", theme === "amber" && "ring-2 ring-primary ring-offset-2 ring-offset-background")}
-                  onClick={() => dispatch({ type: ACTIONS.SET_THEME, payload: { operation: "amber" } })}
-                />
+              <div className="hidden xs:flex items-center gap-2">
+                <div className="flex gap-1.5 p-1 bg-black/10 rounded-full border border-white/5">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "w-7 h-7 rounded-full border border-white/10 transition-all",
+                      theme === "ocean" ? "bg-[#0D9488] shadow-[0_0_15px_rgba(13,148,136,0.5)] scale-110" : "bg-[#0D9488]/20 hover:bg-[#0D9488]/40"
+                    )}
+                    onClick={() => dispatch({ type: ACTIONS.SET_THEME, payload: { operation: "ocean" } })}
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "w-7 h-7 rounded-full border border-white/10 transition-all",
+                      theme === "amber" ? "bg-[#D97706] shadow-[0_0_15px_rgba(217,119,6,0.5)] scale-110" : "bg-[#D97706]/20 hover:bg-[#D97706]/40"
+                    )}
+                    onClick={() => dispatch({ type: ACTIONS.SET_THEME, payload: { operation: "amber" } })}
+                  />
+                </div>
               </div>
 
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden hover:bg-white/10"
+                className="hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => setShowHistory(!showHistory)}
               >
                 <History className="w-5 h-5" />
