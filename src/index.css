@@ -25,10 +25,15 @@
     --border: 180 15% 15%;
     --input: 180 15% 15%;
     --ring: 175 80% 45%;
-    --radius: 1rem;
+    --radius: 1.25rem;
 
     --font-sans: 'Geist', sans-serif;
     --font-mono: 'Geist Mono', monospace;
+
+    /* Extra visual depth tokens */
+    --primary-glow: 175 80% 60%;
+    --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.3);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .theme-amber {
@@ -37,6 +42,7 @@
     --accent: 38 92% 50%;
     --background: 20 20% 4%;
     --card: 20 20% 8%;
+    --primary-glow: 38 92% 65%;
   }
 }
 
@@ -45,17 +51,19 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground antialiased selection:bg-primary/30 min-h-screen transition-colors duration-500;
+    @apply bg-background text-foreground antialiased selection:bg-primary/30 min-h-[100dvh] transition-colors duration-500;
     font-feature-settings: "rlig" 1, "calt" 1;
     background-image: 
-      radial-gradient(at 0% 0%, hsla(175, 80%, 45%, 0.15) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, hsla(175, 80%, 45%, 0.15) 0px, transparent 50%),
-      radial-gradient(at 50% 50%, hsla(175, 80%, 45%, 0.05) 0px, transparent 80%);
+      radial-gradient(at 0% 0%, hsla(var(--primary), 0.15) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(var(--primary), 0.15) 0px, transparent 50%),
+      radial-gradient(at 50% 50%, hsla(var(--primary), 0.05) 0px, transparent 80%);
+    background-attachment: fixed;
   }
 }
 
 .glass-panel {
-  @apply bg-card/40 backdrop-blur-2xl border border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
+  @apply bg-card/40 backdrop-blur-2xl border border-white/5 shadow-2xl;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.37), inset 0 0 0 1px rgba(255,255,255,0.05);
 }
 
 .glass-button {
@@ -64,14 +72,14 @@
 
 .display-text {
   @apply tracking-tighter;
-  text-shadow: 0 0 30px hsla(var(--primary) / 0.3);
+  text-shadow: 0 0 30px hsla(var(--primary) / 0.4);
 }
 
 .calc-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1px;
-  background-color: hsla(var(--border) / 0.5);
+  background-color: hsla(var(--border) / 0.3);
   @apply p-[1px] rounded-b-lg overflow-hidden;
 }
 
@@ -96,4 +104,32 @@
 
 .history-item:hover::after {
   @apply w-full;
+}
+
+/* Custom scrollbar for better look */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
+}
+
+@media (max-width: 400px) {
+  .calc-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 350px) {
+  :root {
+    --radius: 0.75rem;
+  }
+  .display-text {
+    @apply text-4xl;
+  }
 }

@@ -403,37 +403,45 @@ function App() {
 
   return (
     <div className={cn(
-      "min-h-screen bg-background flex flex-col items-center justify-center p-4 md:p-8 transition-colors duration-500 overflow-x-hidden",
+      "min-h-[100dvh] bg-background flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 transition-colors duration-500 overflow-x-hidden relative",
       theme === "amber" && "theme-amber"
     )}>
       <Toaster position="top-center" richColors />
+      
+      {/* Background Decorative Elements */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full" />
+        <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full" />
+      </div>
+
       <div className={cn(
-        "w-full max-w-5xl grid grid-cols-1 gap-6 animate-fade-in transition-all duration-500",
-        (showHistory || showAi) ? "lg:grid-cols-4" : "lg:grid-cols-3"
+        "w-full max-w-6xl grid grid-cols-1 gap-6 md:gap-8 animate-fade-in transition-all duration-500 z-10",
+        (showHistory || showAi) ? "lg:grid-cols-[1fr_350px]" : "max-w-xl"
       )}>
         <Card className={cn(
-          "glass-panel overflow-hidden border-none transition-all duration-500 hover:shadow-primary/10 hover:shadow-2xl",
-          (showHistory || showAi) ? "lg:col-span-3" : "lg:col-span-3"
+          "glass-panel overflow-hidden border-none transition-all duration-500 hover:shadow-primary/10",
+          "w-full mx-auto"
         )}>
-          <CardHeader className="flex flex-row items-center justify-between py-6 px-6 sm:px-8 space-y-0 bg-white/[0.02] overflow-hidden">
-            <CardTitle className="text-xl font-bold flex items-center gap-4 text-primary shrink-0">
-              <div className="w-12 h-12 bg-[#1A1D1D] rounded-2xl flex items-center justify-center border border-primary/20 shadow-xl group transition-all hover:border-primary/40">
-                <CalcIcon className="w-6 h-6 text-primary transition-transform group-hover:scale-110" />
+          <CardHeader className="flex flex-row items-center justify-between py-6 px-4 sm:px-8 space-y-0 bg-white/[0.02] border-b border-white/5">
+            <CardTitle className="text-xl font-bold flex items-center gap-3 sm:gap-4 text-primary shrink-0">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-black/40 rounded-xl sm:rounded-2xl flex items-center justify-center border border-primary/20 shadow-xl group transition-all hover:border-primary/40">
+                <CalcIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary transition-transform group-hover:scale-110" />
               </div>
               <div className="flex flex-col leading-none">
-                <span className="text-xl sm:text-2xl font-bold tracking-tight text-primary">Pro</span>
-                <span className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">Calculator</span>
+                <span className="text-lg sm:text-2xl font-bold tracking-tight text-primary">Pro</span>
+                <span className="text-lg sm:text-2xl font-bold tracking-tight text-foreground">Calculator</span>
               </div>
             </CardTitle>
-            <div className="flex items-center gap-3 sm:gap-6">
-              <div className="flex bg-black/40 p-1 rounded-full border border-white/5 relative h-9 w-24 scale-90 sm:scale-100">
+            
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="hidden xs:flex bg-black/40 p-1 rounded-full border border-white/5 relative h-8 sm:h-9 w-20 sm:w-24 scale-90 sm:scale-100">
                 <div className={cn(
                   "absolute top-1 bottom-1 w-[calc(50%-4px)] bg-primary rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(var(--primary),0.3)]",
                   isRadians ? "left-[calc(50%+2px)]" : "left-1"
                 )} />
                 <button
                   className={cn(
-                    "flex-1 z-10 text-[9px] font-bold tracking-widest transition-colors",
+                    "flex-1 z-10 text-[8px] sm:text-[9px] font-bold tracking-widest transition-colors",
                     !isRadians ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                   )}
                   onClick={() => isRadians && dispatch({ type: ACTIONS.TOGGLE_UNITS })}
@@ -442,7 +450,7 @@ function App() {
                 </button>
                 <button
                   className={cn(
-                    "flex-1 z-10 text-[9px] font-bold tracking-widest transition-colors",
+                    "flex-1 z-10 text-[8px] sm:text-[9px] font-bold tracking-widest transition-colors",
                     isRadians ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                   )}
                   onClick={() => !isRadians && dispatch({ type: ACTIONS.TOGGLE_UNITS })}
@@ -451,46 +459,44 @@ function App() {
                 </button>
               </div>
               
-              <div className="hidden xs:flex items-center">
-                <div className="flex bg-black/40 p-1 rounded-full border border-white/5 relative h-9 w-[72px] sm:w-20">
+              <div className="hidden sm:flex bg-black/40 p-1 rounded-full border border-white/5 relative h-9 w-20">
+                <div className={cn(
+                  "absolute top-1 bottom-1 w-[calc(50%-4px)] bg-primary/20 rounded-full transition-all duration-300 blur-sm",
+                  theme === "amber" ? "left-[calc(50%+2px)]" : "left-1"
+                )} />
+                <button
+                  className={cn(
+                    "flex-1 z-10 flex items-center justify-center transition-all",
+                    theme === "ocean" ? "scale-110" : "opacity-40 hover:opacity-70 scale-90"
+                  )}
+                  onClick={() => dispatch({ type: ACTIONS.SET_THEME, payload: { operation: "ocean" } })}
+                >
                   <div className={cn(
-                    "absolute top-1 bottom-1 w-[calc(50%-4px)] bg-primary/20 rounded-full transition-all duration-300 blur-sm",
-                    theme === "amber" ? "left-[calc(50%+2px)]" : "left-1"
+                    "w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#0D9488] border border-white/10",
+                    theme === "ocean" && "shadow-[0_0_12px_rgba(13,148,136,0.6)]"
                   )} />
-                  <button
-                    className={cn(
-                      "flex-1 z-10 flex items-center justify-center transition-all",
-                      theme === "ocean" ? "scale-110" : "opacity-40 hover:opacity-70 scale-90"
-                    )}
-                    onClick={() => dispatch({ type: ACTIONS.SET_THEME, payload: { operation: "ocean" } })}
-                  >
-                    <div className={cn(
-                      "w-5 h-5 rounded-full bg-[#0D9488] border border-white/10",
-                      theme === "ocean" && "shadow-[0_0_12px_rgba(13,148,136,0.6)]"
-                    )} />
-                  </button>
-                  <button
-                    className={cn(
-                      "flex-1 z-10 flex items-center justify-center transition-all",
-                      theme === "amber" ? "scale-110" : "opacity-40 hover:opacity-70 scale-90"
-                    )}
-                    onClick={() => dispatch({ type: ACTIONS.SET_THEME, payload: { operation: "amber" } })}
-                  >
-                    <div className={cn(
-                      "w-5 h-5 rounded-full bg-[#D97706] border border-white/10",
-                      theme === "amber" && "shadow-[0_0_12px_rgba(217,119,6,0.6)]"
-                    )} />
-                  </button>
-                </div>
+                </button>
+                <button
+                  className={cn(
+                    "flex-1 z-10 flex items-center justify-center transition-all",
+                    theme === "amber" ? "scale-110" : "opacity-40 hover:opacity-70 scale-90"
+                  )}
+                  onClick={() => dispatch({ type: ACTIONS.SET_THEME, payload: { operation: "amber" } })}
+                >
+                  <div className={cn(
+                    "w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#D97706] border border-white/10",
+                    theme === "amber" && "shadow-[0_0_12px_rgba(217,119,6,0.6)]"
+                  )} />
+                </button>
               </div>
 
-              <div className="flex items-center gap-1 sm:gap-2">
+              <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
                   size="icon"
                   className={cn(
-                    "hover:bg-primary/10 transition-all duration-300",
-                    showAi ? "text-primary scale-110" : "text-muted-foreground hover:text-foreground"
+                    "w-9 h-9 sm:w-10 sm:h-10 hover:bg-primary/10 transition-all duration-300",
+                    showAi ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"
                   )}
                   onClick={() => {
                     setShowAi(!showAi)
@@ -499,13 +505,12 @@ function App() {
                 >
                   <Sparkles className="w-5 h-5" />
                 </Button>
-
                 <Button
                   variant="ghost"
                   size="icon"
                   className={cn(
-                    "hover:bg-white/10 transition-all duration-300",
-                    showHistory ? "text-primary scale-110" : "text-muted-foreground hover:text-foreground"
+                    "w-9 h-9 sm:w-10 sm:h-10 hover:bg-primary/10 transition-all duration-300",
+                    showHistory ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"
                   )}
                   onClick={() => {
                     setShowHistory(!showHistory)
@@ -517,257 +522,152 @@ function App() {
               </div>
             </div>
           </CardHeader>
+
           <CardContent className="p-0">
-            <div className="output bg-black/40 p-10 flex flex-col items-end justify-center gap-3 min-h-[200px] text-right border-b border-white/5 relative group">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/10"
-                onClick={copyToClipboard}
-              >
-                {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-muted-foreground" />}
-              </Button>
-              <div className="previous-operand text-muted-foreground/60 font-medium tracking-wider text-xl h-8 overflow-hidden whitespace-nowrap">
+            <div className="flex flex-col bg-black/20 p-6 sm:p-8 min-h-[160px] sm:min-h-[200px] justify-end relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              <div className="text-right text-muted-foreground font-mono text-sm sm:text-lg mb-2 h-6 sm:h-8 flex items-center justify-end gap-2 animate-in fade-in slide-in-from-right-4 duration-500">
                 {formatOperand(previousOperand)} {operation}
               </div>
-              <div className="current-operand text-foreground text-6xl md:text-7xl font-bold tracking-tighter break-all display-text selection:bg-primary/20">
-                {formatOperand(currentOperand) || "0"}
+              <div className="flex items-center justify-end gap-4">
+                <div className={cn(
+                  "text-right font-mono font-bold break-all transition-all duration-300 display-text",
+                  (currentOperand?.length || 0) > 10 ? "text-3xl sm:text-4xl" : "text-5xl sm:text-6xl md:text-7xl",
+                  !currentOperand && "text-muted-foreground/30"
+                )}>
+                  {formatOperand(currentOperand) || "0"}
+                </div>
+                {currentOperand && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="shrink-0 opacity-0 group-hover:opacity-100 transition-all duration-300 text-muted-foreground hover:text-primary h-8 w-8"
+                    onClick={copyToClipboard}
+                  >
+                    {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                  </Button>
+                )}
               </div>
             </div>
-            
-            <div className="grid grid-cols-4 md:grid-cols-6 bg-border/20">
-              {/* Scientific Operations */}
-              <div className="col-span-4 md:col-span-2 grid grid-cols-4 md:grid-cols-2 border-r border-white/5 bg-black/20">
-                <Button
-                  variant="ghost"
-                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-r border-white/5"
-                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "sin" } })}
-                >
-                  sin
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-white/5"
-                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "cos" } })}
-                >
-                  cos
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-r border-white/5"
-                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "tan" } })}
-                >
-                  tan
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-white/5"
-                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "factorial" } })}
-                >
-                  n!
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-r border-white/5"
-                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "log" } })}
-                >
-                  log
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-white/5"
-                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "ln" } })}
-                >
-                  ln
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-r border-white/5"
-                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "pi" } })}
-                >
-                  π
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-white/5"
-                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "e" } })}
-                >
-                  e
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-r border-white/5"
-                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "sqrt" } })}
-                >
-                  √x
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-r border-white/5"
-                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "square" } })}
-                >
-                  x²
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-r border-white/5"
-                  onClick={() => dispatch({ type: ACTIONS.CHOOSE_OPERATION, payload: { operation: "^" } })}
-                >
-                  xʸ
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors"
-                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "reciprocal" } })}
-                >
-                  1/x
-                </Button>
-              </div>
 
-              <div className="col-span-4 grid grid-cols-4 bg-border/20">
-                <Button
-                  variant="ghost"
-                  className={cn(
-                    "h-16 md:h-20 text-lg font-bold rounded-none hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-all",
-                    pressedKey === "Escape" && "bg-destructive/20 scale-95"
-                  )}
-                  onClick={() => dispatch({ type: ACTIONS.CLEAR })}
-                >
-                  AC
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="h-16 md:h-20 text-lg font-medium rounded-none hover:bg-white/5 text-muted-foreground"
-                  onClick={() => dispatch({ type: ACTIONS.TOGGLE_SIGN })}
-                >
-                  +/-
-                </Button>
-                <Button
-                  variant="ghost"
-                  className={cn(
-                    "h-16 md:h-20 text-lg font-medium rounded-none hover:bg-white/5 text-muted-foreground",
-                    pressedKey === "%" && "bg-white/10 scale-95"
-                  )}
-                  onClick={() => dispatch({ type: ACTIONS.PERCENT })}
-                >
-                  %
-                </Button>
-                <OperationButton 
-                  operation="÷" 
-                  dispatch={dispatch} 
-                  isPressed={pressedKey === "/"}
-                />
-                
-                <DigitButton digit="7" dispatch={dispatch} isPressed={pressedKey === "7"} />
-                <DigitButton digit="8" dispatch={dispatch} isPressed={pressedKey === "8"} />
-                <DigitButton digit="9" dispatch={dispatch} isPressed={pressedKey === "9"} />
-                <OperationButton 
-                  operation="*" 
-                  dispatch={dispatch} 
-                  isPressed={pressedKey === "*"}
-                />
-                
-                <DigitButton digit="4" dispatch={dispatch} isPressed={pressedKey === "4"} />
-                <DigitButton digit="5" dispatch={dispatch} isPressed={pressedKey === "5"} />
-                <DigitButton digit="6" dispatch={dispatch} isPressed={pressedKey === "6"} />
-                <OperationButton 
-                  operation="+" 
-                  dispatch={dispatch} 
-                  isPressed={pressedKey === "+"}
-                />
-                
-                <DigitButton digit="1" dispatch={dispatch} isPressed={pressedKey === "1"} />
-                <DigitButton digit="2" dispatch={dispatch} isPressed={pressedKey === "2"} />
-                <DigitButton digit="3" dispatch={dispatch} isPressed={pressedKey === "3"} />
-                <OperationButton 
-                  operation="-" 
-                  dispatch={dispatch} 
-                  isPressed={pressedKey === "-"}
-                />
-                
-                <DigitButton digit="." dispatch={dispatch} isPressed={pressedKey === "."} />
-                <DigitButton digit="0" dispatch={dispatch} isPressed={pressedKey === "0"} />
-                <Button
-                  variant="ghost"
-                  className={cn(
-                    "h-16 md:h-20 text-lg font-medium rounded-none hover:bg-white/5 text-muted-foreground flex items-center justify-center",
-                    pressedKey === "Backspace" && "bg-white/10 scale-95"
-                  )}
-                  onClick={() => dispatch({ type: ACTIONS.DELETE_DIGIT })}
-                >
-                  <Eraser className="w-5 h-5" />
-                </Button>
-                <Button
-                  className={cn(
-                    "h-16 md:h-20 text-3xl font-bold rounded-none bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_20px_hsla(var(--primary)/0.4)]",
-                    (pressedKey === "Enter" || pressedKey === "=") && "bg-primary/80 scale-95"
-                  )}
-                  onClick={() => dispatch({ type: ACTIONS.EVALUATE })}
-                >
-                  =
-                </Button>
-              </div>
+            <div className="calc-grid border-t border-white/5">
+              <Button
+                variant="ghost"
+                className="col-span-2 h-16 sm:h-20 text-lg sm:text-xl font-bold text-destructive hover:bg-destructive/10 rounded-none border-r border-b border-white/5 transition-all active:scale-95"
+                onClick={() => dispatch({ type: ACTIONS.CLEAR })}
+              >
+                AC
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-16 sm:h-20 flex items-center justify-center hover:bg-white/5 rounded-none border-r border-b border-white/5 transition-all active:scale-95"
+                onClick={() => dispatch({ type: ACTIONS.DELETE_DIGIT })}
+              >
+                <Eraser className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+              </Button>
+              <OperationButton operation="÷" dispatch={dispatch} className="h-16 sm:h-20 border-b border-white/5" />
+
+              <DigitButton digit="7" dispatch={dispatch} className="h-16 sm:h-20 border-r border-b border-white/5" />
+              <DigitButton digit="8" dispatch={dispatch} className="h-16 sm:h-20 border-r border-b border-white/5" />
+              <DigitButton digit="9" dispatch={dispatch} className="h-16 sm:h-20 border-r border-b border-white/5" />
+              <OperationButton operation="*" dispatch={dispatch} className="h-16 sm:h-20 border-b border-white/5" />
+
+              <DigitButton digit="4" dispatch={dispatch} className="h-16 sm:h-20 border-r border-b border-white/5" />
+              <DigitButton digit="5" dispatch={dispatch} className="h-16 sm:h-20 border-r border-b border-white/5" />
+              <DigitButton digit="6" dispatch={dispatch} className="h-16 sm:h-20 border-r border-b border-white/5" />
+              <OperationButton operation="-" dispatch={dispatch} className="h-16 sm:h-20 border-b border-white/5" />
+
+              <DigitButton digit="1" dispatch={dispatch} className="h-16 sm:h-20 border-r border-b border-white/5" />
+              <DigitButton digit="2" dispatch={dispatch} className="h-16 sm:h-20 border-r border-b border-white/5" />
+              <DigitButton digit="3" dispatch={dispatch} className="h-16 sm:h-20 border-r border-b border-white/5" />
+              <OperationButton operation="+" dispatch={dispatch} className="h-16 sm:h-20 border-b border-white/5" />
+
+              <DigitButton digit="." dispatch={dispatch} className="h-16 sm:h-20 border-r border-white/5" />
+              <DigitButton digit="0" dispatch={dispatch} className="h-16 sm:h-20 border-r border-white/5" />
+              <Button
+                variant="ghost"
+                className="h-16 sm:h-20 text-lg sm:text-xl font-bold text-primary hover:bg-primary/10 rounded-none border-r border-white/5 transition-all active:scale-95"
+                onClick={() => dispatch({ type: ACTIONS.PERCENT })}
+              >
+                %
+              </Button>
+              <Button
+                className="h-16 sm:h-20 text-2xl sm:text-3xl font-bold bg-primary hover:bg-primary/90 text-primary-foreground rounded-none shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] transition-all active:scale-95"
+                onClick={() => dispatch({ type: ACTIONS.EVALUATE })}
+              >
+                =
+              </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Side Panels */}
-        {showHistory && (
-          <Card className="lg:block glass-panel border-none shadow-2xl transition-all duration-500 h-[700px] lg:h-auto">
-            <CardHeader className="flex flex-row items-center justify-between py-4 px-6 bg-white/5 border-b border-white/5">
-              <CardTitle className="text-lg font-bold flex items-center gap-3 text-primary">
-                <History className="w-5 h-5" />
-                History
-              </CardTitle>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all rounded-lg"
-                onClick={() => {
-                  dispatch({ type: ACTIONS.CLEAR_HISTORY })
-                  toast.error("History cleared")
-                }}
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </CardHeader>
-            <CardContent className="p-4">
-              <ScrollArea className="h-[400px] lg:h-[600px] pr-4">
-                {history.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-20 opacity-20">
-                    <History className="w-12 h-12 mb-4" />
-                    <p className="text-sm font-medium uppercase tracking-widest">Empty</p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {history.map((item, index) => (
-                      <div 
-                        key={index} 
-                        className="history-item flex flex-col items-end group"
-                        onClick={() => dispatch({ type: ACTIONS.SET_HISTORY_ITEM, payload: { digit: item.result } })}
-                      >
-                        <span className="text-xs font-mono text-muted-foreground/60 mb-1 group-hover:text-primary transition-colors">{item.expression}</span>
-                        <span className="text-2xl font-bold text-foreground tracking-tight">={item.result}</span>
+        {/* Sidebar panels */}
+        <div className={cn(
+          "flex flex-col gap-6 transition-all duration-500",
+          (!showHistory && !showAi) && "hidden"
+        )}>
+          {showHistory && (
+            <Card className="glass-panel border-none h-full min-h-[400px] flex flex-col animate-in slide-in-from-right-4 duration-500 shadow-xl">
+              <CardHeader className="flex flex-row items-center justify-between py-6 px-6 border-b border-white/5">
+                <CardTitle className="text-lg font-bold flex items-center gap-2 text-primary">
+                  <History className="w-5 h-5" />
+                  History
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-muted-foreground hover:text-destructive h-8 w-8"
+                  onClick={() => dispatch({ type: ACTIONS.CLEAR_HISTORY })}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </CardHeader>
+              <CardContent className="flex-1 p-0 overflow-hidden">
+                <ScrollArea className="h-[400px] lg:h-[600px] px-4 py-4">
+                  <div className="space-y-3">
+                    {history.length === 0 ? (
+                      <div className="text-center py-12 text-muted-foreground flex flex-col items-center gap-3">
+                        <CalcIcon className="w-8 h-8 opacity-20" />
+                        <p className="text-sm font-medium">No calculations yet</p>
                       </div>
-                    ))}
+                    ) : (
+                      history.map((item, index) => (
+                        <div
+                          key={index}
+                          className="history-item group"
+                          onClick={() => dispatch({ type: ACTIONS.SET_HISTORY_ITEM, payload: { digit: item.result } })}
+                        >
+                          <div className="text-xs font-mono text-muted-foreground mb-1 group-hover:text-primary/70 transition-colors">
+                            {item.expression}
+                          </div>
+                          <div className="text-lg font-mono font-bold text-foreground">
+                            = {formatOperand(item.result)}
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
-                )}
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        )}
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          )}
 
-        {showAi && (
-          <div className="lg:col-span-1 h-[700px] lg:h-auto">
-            <AiAssistant 
-              currentOperand={currentOperand}
-              previousOperand={previousOperand}
-              operation={operation}
-              dispatch={dispatch}
-              onClose={() => setShowAi(false)}
-            />
-          </div>
-        )}
+          {showAi && (
+            <div className="animate-in slide-in-from-right-4 duration-500 h-full">
+              <AiAssistant 
+                currentOperand={currentOperand}
+                previousOperand={previousOperand}
+                operation={operation}
+                dispatch={dispatch}
+                onClose={() => setShowAi(false)} 
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold tracking-[0.2em] text-muted-foreground/30 uppercase z-10 hidden sm:block font-mono">
+        Pro Calculator Elite Edition
       </div>
     </div>
   )
