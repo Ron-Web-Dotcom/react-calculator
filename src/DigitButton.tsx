@@ -14,7 +14,7 @@ export default function DigitButton({ dispatch, digit, className, isPressed }: D
     <Button
       variant="ghost"
       className={cn(
-        "h-20 text-xl rounded-none transition-all duration-200 active:scale-95",
+        "h-16 md:h-20 text-xl rounded-none transition-all duration-200 active:scale-95",
         "bg-transparent hover:bg-white/5 border-none",
         isPressed && "bg-white/10 scale-95",
         className

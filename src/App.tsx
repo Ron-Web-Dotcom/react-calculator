@@ -367,7 +367,6 @@ function App() {
                 <OperationButton 
                   operation="÷" 
                   dispatch={dispatch} 
-                  className="h-16 md:h-20" 
                   isPressed={pressedKey === "/"}
                 />
                 
@@ -377,7 +376,6 @@ function App() {
                 <OperationButton 
                   operation="*" 
                   dispatch={dispatch} 
-                  className="h-16 md:h-20" 
                   isPressed={pressedKey === "*"}
                 />
                 
@@ -387,7 +385,6 @@ function App() {
                 <OperationButton 
                   operation="+" 
                   dispatch={dispatch} 
-                  className="h-16 md:h-20" 
                   isPressed={pressedKey === "+"}
                 />
                 
@@ -397,7 +394,6 @@ function App() {
                 <OperationButton 
                   operation="-" 
                   dispatch={dispatch} 
-                  className="h-16 md:h-20" 
                   isPressed={pressedKey === "-"}
                 />
                 
