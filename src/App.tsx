@@ -415,66 +415,76 @@ function App() {
           "glass-panel overflow-hidden border-none transition-all duration-500 hover:shadow-primary/10 hover:shadow-2xl",
           (showHistory || showAi) ? "lg:col-span-3" : "lg:col-span-3"
         )}>
-          <CardHeader className="flex flex-row items-center justify-between py-5 px-6 space-y-0 bg-white/5 overflow-hidden">
-            <CardTitle className="text-xl font-bold flex items-center gap-3 text-primary shrink-0">
-              <div className="p-2.5 bg-primary/10 rounded-xl shadow-inner">
-                <CalcIcon className="w-5 h-5" />
+          <CardHeader className="flex flex-row items-center justify-between py-6 px-6 sm:px-8 space-y-0 bg-white/[0.02] overflow-hidden">
+            <CardTitle className="text-xl font-bold flex items-center gap-4 text-primary shrink-0">
+              <div className="w-12 h-12 bg-[#1A1D1D] rounded-2xl flex items-center justify-center border border-primary/20 shadow-xl group transition-all hover:border-primary/40">
+                <CalcIcon className="w-6 h-6 text-primary transition-transform group-hover:scale-110" />
               </div>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 leading-tight">
-                <span className="tracking-tight whitespace-nowrap">Pro</span>
-                <span className="tracking-tight whitespace-nowrap text-foreground/90 font-medium sm:font-bold">Calculator</span>
+              <div className="flex flex-col leading-none">
+                <span className="text-xl sm:text-2xl font-bold tracking-tight text-primary">Pro</span>
+                <span className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">Calculator</span>
               </div>
             </CardTitle>
-            <div className="flex items-center gap-2 sm:gap-4">
-              <div className="flex bg-black/20 p-1 rounded-lg border border-white/5 scale-90 sm:scale-100 origin-right">
-                <Button
-                  variant="ghost"
-                  size="sm"
+            <div className="flex items-center gap-3 sm:gap-6">
+              <div className="flex bg-black/40 p-1 rounded-full border border-white/5 relative h-9 w-24 scale-90 sm:scale-100">
+                <div className={cn(
+                  "absolute top-1 bottom-1 w-[calc(50%-4px)] bg-primary rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(var(--primary),0.3)]",
+                  isRadians ? "left-[calc(50%+2px)]" : "left-1"
+                )} />
+                <button
                   className={cn(
-                    "px-2 sm:px-3 h-7 sm:h-8 text-[9px] sm:text-[10px] font-bold tracking-widest transition-all rounded-md",
-                    !isRadians ? "bg-primary text-primary-foreground shadow-lg" : "text-muted-foreground hover:text-foreground"
+                    "flex-1 z-10 text-[9px] font-bold tracking-widest transition-colors",
+                    !isRadians ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                   )}
-                  onClick={() => dispatch({ type: ACTIONS.TOGGLE_UNITS })}
+                  onClick={() => isRadians && dispatch({ type: ACTIONS.TOGGLE_UNITS })}
                 >
                   DEG
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
+                </button>
+                <button
                   className={cn(
-                    "px-2 sm:px-3 h-7 sm:h-8 text-[9px] sm:text-[10px] font-bold tracking-widest transition-all rounded-md",
-                    isRadians ? "bg-primary text-primary-foreground shadow-lg" : "text-muted-foreground hover:text-foreground"
+                    "flex-1 z-10 text-[9px] font-bold tracking-widest transition-colors",
+                    isRadians ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                   )}
-                  onClick={() => dispatch({ type: ACTIONS.TOGGLE_UNITS })}
+                  onClick={() => !isRadians && dispatch({ type: ACTIONS.TOGGLE_UNITS })}
                 >
                   RAD
-                </Button>
+                </button>
               </div>
               
-              <div className="hidden xs:flex items-center gap-2">
-                <div className="flex gap-1.5 p-1 bg-black/10 rounded-full border border-white/5">
-                  <Button
-                    variant="ghost"
-                    size="icon"
+              <div className="hidden xs:flex items-center">
+                <div className="flex bg-black/40 p-1 rounded-full border border-white/5 relative h-9 w-[72px] sm:w-20">
+                  <div className={cn(
+                    "absolute top-1 bottom-1 w-[calc(50%-4px)] bg-primary/20 rounded-full transition-all duration-300 blur-sm",
+                    theme === "amber" ? "left-[calc(50%+2px)]" : "left-1"
+                  )} />
+                  <button
                     className={cn(
-                      "w-7 h-7 rounded-full border border-white/10 transition-all",
-                      theme === "ocean" ? "bg-[#0D9488] shadow-[0_0_15px_rgba(13,148,136,0.5)] scale-110" : "bg-[#0D9488]/20 hover:bg-[#0D9488]/40"
+                      "flex-1 z-10 flex items-center justify-center transition-all",
+                      theme === "ocean" ? "scale-110" : "opacity-40 hover:opacity-70 scale-90"
                     )}
                     onClick={() => dispatch({ type: ACTIONS.SET_THEME, payload: { operation: "ocean" } })}
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
+                  >
+                    <div className={cn(
+                      "w-5 h-5 rounded-full bg-[#0D9488] border border-white/10",
+                      theme === "ocean" && "shadow-[0_0_12px_rgba(13,148,136,0.6)]"
+                    )} />
+                  </button>
+                  <button
                     className={cn(
-                      "w-7 h-7 rounded-full border border-white/10 transition-all",
-                      theme === "amber" ? "bg-[#D97706] shadow-[0_0_15px_rgba(217,119,6,0.5)] scale-110" : "bg-[#D97706]/20 hover:bg-[#D97706]/40"
+                      "flex-1 z-10 flex items-center justify-center transition-all",
+                      theme === "amber" ? "scale-110" : "opacity-40 hover:opacity-70 scale-90"
                     )}
                     onClick={() => dispatch({ type: ACTIONS.SET_THEME, payload: { operation: "amber" } })}
-                  />
+                  >
+                    <div className={cn(
+                      "w-5 h-5 rounded-full bg-[#D97706] border border-white/10",
+                      theme === "amber" && "shadow-[0_0_12px_rgba(217,119,6,0.6)]"
+                    )} />
+                  </button>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <Button
                   variant="ghost"
                   size="icon"
