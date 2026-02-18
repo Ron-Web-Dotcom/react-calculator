@@ -12,10 +12,11 @@
 import { useReducer, useEffect, useState } from "react"
 import DigitButton from "./DigitButton"
 import OperationButton from "./OperationButton"
+import AiAssistant from "./AiAssistant"
 import { Button } from "./components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card"
 import { ScrollArea } from "./components/ui/scroll-area"
-import { History, Trash2, Keyboard, Calculator as CalcIcon, Eraser, Copy, Check, Settings2, Palette } from "lucide-react"
+import { History, Trash2, Keyboard, Calculator as CalcIcon, Eraser, Copy, Check, Settings2, Palette, Sparkles } from "lucide-react"
 import { toast, Toaster } from "sonner"
 import { cn } from "./lib/utils"
 
@@ -331,6 +332,7 @@ function App() {
   )
 
   const [showHistory, setShowHistory] = useState(false)
+  const [showAi, setShowAi] = useState(false)
   const [pressedKey, setPressedKey] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
@@ -401,12 +403,18 @@ function App() {
 
   return (
     <div className={cn(
-      "min-h-screen bg-background flex flex-col items-center justify-center p-4 md:p-8 transition-colors duration-500",
+      "min-h-screen bg-background flex flex-col items-center justify-center p-4 md:p-8 transition-colors duration-500 overflow-x-hidden",
       theme === "amber" && "theme-amber"
     )}>
       <Toaster position="top-center" richColors />
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-4 gap-6 animate-fade-in">
-        <Card className="lg:col-span-3 glass-panel overflow-hidden border-none transition-all duration-500 hover:shadow-primary/10 hover:shadow-2xl">
+      <div className={cn(
+        "w-full max-w-5xl grid grid-cols-1 gap-6 animate-fade-in transition-all duration-500",
+        (showHistory || showAi) ? "lg:grid-cols-4" : "lg:grid-cols-3"
+      )}>
+        <Card className={cn(
+          "glass-panel overflow-hidden border-none transition-all duration-500 hover:shadow-primary/10 hover:shadow-2xl",
+          (showHistory || showAi) ? "lg:col-span-3" : "lg:col-span-3"
+        )}>
           <CardHeader className="flex flex-row items-center justify-between py-5 px-6 space-y-0 bg-white/5 overflow-hidden">
             <CardTitle className="text-xl font-bold flex items-center gap-3 text-primary shrink-0">
               <div className="p-2.5 bg-primary/10 rounded-xl shadow-inner">
@@ -466,14 +474,37 @@ function App() {
                 </div>
               </div>
 
-              <Button
-                variant="ghost"
-                size="icon"
-                className="hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors"
-                onClick={() => setShowHistory(!showHistory)}
-              >
-                <History className="w-5 h-5" />
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "hover:bg-primary/10 transition-all duration-300",
+                    showAi ? "text-primary scale-110" : "text-muted-foreground hover:text-foreground"
+                  )}
+                  onClick={() => {
+                    setShowAi(!showAi)
+                    setShowHistory(false)
+                  }}
+                >
+                  <Sparkles className="w-5 h-5" />
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "hover:bg-white/10 transition-all duration-300",
+                    showHistory ? "text-primary scale-110" : "text-muted-foreground hover:text-foreground"
+                  )}
+                  onClick={() => {
+                    setShowHistory(!showHistory)
+                    setShowAi(false)
+                  }}
+                >
+                  <History className="w-5 h-5" />
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="p-0">
@@ -670,48 +701,63 @@ function App() {
           </CardContent>
         </Card>
 
-        <Card className={cn(
-          "lg:block glass-panel border-none lg:col-span-1 shadow-2xl transition-all duration-500",
-          showHistory ? 'block' : 'hidden'
-        )}>
-          <CardHeader className="flex flex-row items-center justify-between py-4 px-6 bg-white/5">
-            <CardTitle className="text-lg font-bold flex items-center gap-3 text-primary">
-              <History className="w-5 h-5" />
-              History
-            </CardTitle>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all rounded-lg"
-              onClick={() => dispatch({ type: ACTIONS.CLEAR_HISTORY })}
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </CardHeader>
-          <CardContent className="p-4">
-            <ScrollArea className="h-[400px] lg:h-[600px] pr-4">
-              {history.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 opacity-20">
-                  <History className="w-12 h-12 mb-4" />
-                  <p className="text-sm font-medium uppercase tracking-widest">Empty</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {history.map((item, index) => (
-                    <div 
-                      key={index} 
-                      className="history-item flex flex-col items-end group"
-                      onClick={() => dispatch({ type: ACTIONS.SET_HISTORY_ITEM, payload: { digit: item.result } })}
-                    >
-                      <span className="text-xs font-mono text-muted-foreground/60 mb-1 group-hover:text-primary transition-colors">{item.expression}</span>
-                      <span className="text-2xl font-bold text-foreground tracking-tight">={item.result}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </ScrollArea>
-          </CardContent>
-        </Card>
+        {/* Side Panels */}
+        {showHistory && (
+          <Card className="lg:block glass-panel border-none shadow-2xl transition-all duration-500 h-[700px] lg:h-auto">
+            <CardHeader className="flex flex-row items-center justify-between py-4 px-6 bg-white/5 border-b border-white/5">
+              <CardTitle className="text-lg font-bold flex items-center gap-3 text-primary">
+                <History className="w-5 h-5" />
+                History
+              </CardTitle>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all rounded-lg"
+                onClick={() => {
+                  dispatch({ type: ACTIONS.CLEAR_HISTORY })
+                  toast.error("History cleared")
+                }}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </CardHeader>
+            <CardContent className="p-4">
+              <ScrollArea className="h-[400px] lg:h-[600px] pr-4">
+                {history.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-20 opacity-20">
+                    <History className="w-12 h-12 mb-4" />
+                    <p className="text-sm font-medium uppercase tracking-widest">Empty</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {history.map((item, index) => (
+                      <div 
+                        key={index} 
+                        className="history-item flex flex-col items-end group"
+                        onClick={() => dispatch({ type: ACTIONS.SET_HISTORY_ITEM, payload: { digit: item.result } })}
+                      >
+                        <span className="text-xs font-mono text-muted-foreground/60 mb-1 group-hover:text-primary transition-colors">{item.expression}</span>
+                        <span className="text-2xl font-bold text-foreground tracking-tight">={item.result}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        )}
+
+        {showAi && (
+          <div className="lg:col-span-1 h-[700px] lg:h-auto">
+            <AiAssistant 
+              currentOperand={currentOperand}
+              previousOperand={previousOperand}
+              operation={operation}
+              dispatch={dispatch}
+              onClose={() => setShowAi(false)}
+            />
+          </div>
+        )}
       </div>
     </div>
   )
