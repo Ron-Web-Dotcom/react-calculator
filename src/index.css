@@ -30,6 +30,14 @@
     --font-sans: 'Geist', sans-serif;
     --font-mono: 'Geist Mono', monospace;
   }
+
+  .theme-amber {
+    --primary: 38 92% 50%;
+    --ring: 38 92% 50%;
+    --accent: 38 92% 50%;
+    --background: 20 20% 4%;
+    --card: 20 20% 8%;
+  }
 }
 
 @layer base {
@@ -37,7 +45,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground antialiased selection:bg-primary/30 min-h-screen;
+    @apply bg-background text-foreground antialiased selection:bg-primary/30 min-h-screen transition-colors duration-500;
     font-feature-settings: "rlig" 1, "calt" 1;
     background-image: 
       radial-gradient(at 0% 0%, hsla(175, 80%, 45%, 0.15) 0px, transparent 50%),

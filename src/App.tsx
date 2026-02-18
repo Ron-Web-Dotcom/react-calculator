@@ -15,7 +15,8 @@ import OperationButton from "./OperationButton"
 import { Button } from "./components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card"
 import { ScrollArea } from "./components/ui/scroll-area"
-import { History, Trash2, Keyboard, Calculator as CalcIcon, Eraser } from "lucide-react"
+import { History, Trash2, Keyboard, Calculator as CalcIcon, Eraser, Copy, Check, Settings2, Palette } from "lucide-react"
+import { toast, Toaster } from "sonner"
 import { cn } from "./lib/utils"
 
 /** Available actions for the calculator state reducer */
@@ -30,6 +31,8 @@ export const ACTIONS = {
   CLEAR_HISTORY: "clear-history",
   SET_HISTORY_ITEM: "set-history-item",
   SCIENTIFIC_OPERATION: "scientific-operation",
+  TOGGLE_UNITS: "toggle-units",
+  SET_THEME: "set-theme",
 } as const
 
 type ActionType = typeof ACTIONS[keyof typeof ACTIONS]
@@ -46,6 +49,10 @@ interface State {
   overwrite?: boolean
   /** Array of past calculations */
   history: { expression: string; result: string }[]
+  /** Whether trigonometric functions use radians or degrees */
+  isRadians: boolean
+  /** The current theme of the calculator */
+  theme: "ocean" | "amber"
 }
 
 interface Action {
@@ -112,10 +119,29 @@ function reducer(state: State, { type, payload }: Action): State {
         currentOperand: null,
       }
     case ACTIONS.SCIENTIFIC_OPERATION:
-      if (state.currentOperand == null) return state
+      if (state.currentOperand == null) {
+        // Handle PI and E even if currentOperand is null
+        if (payload?.operation === "pi") {
+          return { ...state, currentOperand: Math.PI.toString(), overwrite: true }
+        }
+        if (payload?.operation === "e") {
+          return { ...state, currentOperand: Math.E.toString(), overwrite: true }
+        }
+        return state
+      }
+      
       const currentVal = parseFloat(state.currentOperand)
       let scientificResult = 0
       let scientificExpression = ""
+
+      // Helper for factorial
+      const factorial = (n: number): number => {
+        if (n < 0) return NaN
+        if (n === 0) return 1
+        let res = 1
+        for (let i = 2; i <= n; i++) res *= i
+        return res
+      }
 
       // Handle scientific operations
       switch (payload?.operation) {
@@ -135,6 +161,34 @@ function reducer(state: State, { type, payload }: Action): State {
           scientificResult = Math.abs(currentVal)
           scientificExpression = `|${state.currentOperand}|`
           break
+        case "sin":
+          scientificResult = state.isRadians ? Math.sin(currentVal) : Math.sin(currentVal * (Math.PI / 180))
+          scientificExpression = `sin(${state.currentOperand})`
+          break
+        case "cos":
+          scientificResult = state.isRadians ? Math.cos(currentVal) : Math.cos(currentVal * (Math.PI / 180))
+          scientificExpression = `cos(${state.currentOperand})`
+          break
+        case "tan":
+          scientificResult = state.isRadians ? Math.tan(currentVal) : Math.tan(currentVal * (Math.PI / 180))
+          scientificExpression = `tan(${state.currentOperand})`
+          break
+        case "log":
+          scientificResult = Math.log10(currentVal)
+          scientificExpression = `log(${state.currentOperand})`
+          break
+        case "ln":
+          scientificResult = Math.log(currentVal)
+          scientificExpression = `ln(${state.currentOperand})`
+          break
+        case "factorial":
+          scientificResult = factorial(currentVal)
+          scientificExpression = `${state.currentOperand}!`
+          break
+        case "pi":
+          return { ...state, currentOperand: Math.PI.toString(), overwrite: true }
+        case "e":
+          return { ...state, currentOperand: Math.E.toString(), overwrite: true }
         default:
           return state
       }
@@ -144,7 +198,6 @@ function reducer(state: State, { type, payload }: Action): State {
         ...state,
         currentOperand: resString,
         overwrite: true,
-        // Update history with the result
         history: [{ expression: scientificExpression, result: resString }, ...state.history].slice(0, 10)
       }
     case ACTIONS.CLEAR:
@@ -213,6 +266,10 @@ function reducer(state: State, { type, payload }: Action): State {
       }
     case ACTIONS.CLEAR_HISTORY:
       return { ...state, history: [] }
+    case ACTIONS.TOGGLE_UNITS:
+      return { ...state, isRadians: !state.isRadians }
+    case ACTIONS.SET_THEME:
+      return { ...state, theme: payload?.operation as "ocean" | "amber" }
     default:
       return state
   }
@@ -264,18 +321,33 @@ function formatOperand(operand: string | null | undefined): string | undefined {
 
 function App() {
   // Initialize state with history from LocalStorage if available
-  const [{ currentOperand, previousOperand, operation, history }, dispatch] = useReducer(
+  const [{ currentOperand, previousOperand, operation, history, isRadians, theme }, dispatch] = useReducer(
     reducer,
-    { history: JSON.parse(localStorage.getItem("calc-history") || "[]") }
+    { 
+      history: JSON.parse(localStorage.getItem("calc-history") || "[]"), 
+      isRadians: JSON.parse(localStorage.getItem("calc-units") || "true"), 
+      theme: (localStorage.getItem("calc-theme") as "ocean" | "amber") || "ocean" 
+    }
   )
 
   const [showHistory, setShowHistory] = useState(false)
   const [pressedKey, setPressedKey] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
 
-  // Sync history state to LocalStorage whenever it changes
+  const copyToClipboard = () => {
+    if (!currentOperand) return
+    navigator.clipboard.writeText(currentOperand)
+    setCopied(true)
+    toast.success("Result copied to clipboard")
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  // Sync state to LocalStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("calc-history", JSON.stringify(history))
-  }, [history])
+    localStorage.setItem("calc-units", JSON.stringify(isRadians))
+    localStorage.setItem("calc-theme", theme)
+  }, [history, isRadians, theme])
 
   // Handle keyboard events
   useEffect(() => {
@@ -308,6 +380,18 @@ function App() {
         dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "reciprocal" } })
       } else if (e.key === "a") {
         dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "abs" } })
+      } else if (e.key === "i") {
+        dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "sin" } })
+      } else if (e.key === "o") {
+        dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "cos" } })
+      } else if (e.key === "t") {
+        dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "tan" } })
+      } else if (e.key === "l") {
+        dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "log" } })
+      } else if (e.key === "n") {
+        dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "ln" } })
+      } else if (e.key === "!") {
+        dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "factorial" } })
       }
     }
 
@@ -316,7 +400,11 @@ function App() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 md:p-8">
+    <div className={cn(
+      "min-h-screen bg-background flex flex-col items-center justify-center p-4 md:p-8 transition-colors duration-500",
+      theme === "amber" && "theme-amber"
+    )}>
+      <Toaster position="top-center" richColors />
       <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-4 gap-6 animate-fade-in">
         <Card className="lg:col-span-3 glass-panel overflow-hidden border-none transition-all duration-500 hover:shadow-primary/10 hover:shadow-2xl">
           <CardHeader className="flex flex-row items-center justify-between py-4 px-6 space-y-0 bg-white/5">
@@ -326,7 +414,47 @@ function App() {
               </div>
               <span className="tracking-tight">Pro Calculator</span>
             </CardTitle>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <div className="flex bg-black/20 p-1 rounded-lg border border-white/5">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "px-3 h-8 text-[10px] font-bold tracking-widest transition-all rounded-md",
+                    !isRadians ? "bg-primary text-primary-foreground shadow-lg" : "text-muted-foreground hover:text-foreground"
+                  )}
+                  onClick={() => dispatch({ type: ACTIONS.TOGGLE_UNITS })}
+                >
+                  DEG
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "px-3 h-8 text-[10px] font-bold tracking-widest transition-all rounded-md",
+                    isRadians ? "bg-primary text-primary-foreground shadow-lg" : "text-muted-foreground hover:text-foreground"
+                  )}
+                  onClick={() => dispatch({ type: ACTIONS.TOGGLE_UNITS })}
+                >
+                  RAD
+                </Button>
+              </div>
+              
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn("w-8 h-8 rounded-full border border-white/10 bg-[#0D9488]/20 hover:bg-[#0D9488]/40", theme === "ocean" && "ring-2 ring-primary ring-offset-2 ring-offset-background")}
+                  onClick={() => dispatch({ type: ACTIONS.SET_THEME, payload: { operation: "ocean" } })}
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn("w-8 h-8 rounded-full border border-white/10 bg-[#D97706]/20 hover:bg-[#D97706]/40", theme === "amber" && "ring-2 ring-primary ring-offset-2 ring-offset-background")}
+                  onClick={() => dispatch({ type: ACTIONS.SET_THEME, payload: { operation: "amber" } })}
+                />
+              </div>
+
               <Button
                 variant="ghost"
                 size="icon"
@@ -338,7 +466,15 @@ function App() {
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="output bg-black/40 p-10 flex flex-col items-end justify-center gap-3 min-h-[200px] text-right border-b border-white/5">
+            <div className="output bg-black/40 p-10 flex flex-col items-end justify-center gap-3 min-h-[200px] text-right border-b border-white/5 relative group">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/10"
+                onClick={copyToClipboard}
+              >
+                {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-muted-foreground" />}
+              </Button>
               <div className="previous-operand text-muted-foreground/60 font-medium tracking-wider text-xl h-8 overflow-hidden whitespace-nowrap">
                 {formatOperand(previousOperand)} {operation}
               </div>
@@ -347,33 +483,89 @@ function App() {
               </div>
             </div>
             
-            <div className="grid grid-cols-4 md:grid-cols-5 bg-white/[0.02]">
-              {/* Scientific Operations (Hidden on small screens, or integrated) */}
-              <div className="col-span-4 md:col-span-1 grid grid-cols-4 md:grid-cols-1 border-r border-white/5 bg-black/20">
+            <div className="grid grid-cols-4 md:grid-cols-6 bg-border/20">
+              {/* Scientific Operations */}
+              <div className="col-span-4 md:col-span-2 grid grid-cols-4 md:grid-cols-2 border-r border-white/5 bg-black/20">
                 <Button
                   variant="ghost"
-                  className="h-16 md:h-20 text-sm font-medium rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-white/5"
+                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-r border-white/5"
+                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "sin" } })}
+                >
+                  sin
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-white/5"
+                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "cos" } })}
+                >
+                  cos
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-r border-white/5"
+                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "tan" } })}
+                >
+                  tan
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-white/5"
+                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "factorial" } })}
+                >
+                  n!
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-r border-white/5"
+                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "log" } })}
+                >
+                  log
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-white/5"
+                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "ln" } })}
+                >
+                  ln
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-r border-white/5"
+                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "pi" } })}
+                >
+                  π
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-white/5"
+                  onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "e" } })}
+                >
+                  e
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-r border-white/5"
                   onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "sqrt" } })}
                 >
                   √x
                 </Button>
                 <Button
                   variant="ghost"
-                  className="h-16 md:h-20 text-sm font-medium rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-white/5"
+                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-r border-white/5"
                   onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "square" } })}
                 >
                   x²
                 </Button>
                 <Button
                   variant="ghost"
-                  className="h-16 md:h-20 text-sm font-medium rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-b border-white/5"
+                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors border-r border-white/5"
                   onClick={() => dispatch({ type: ACTIONS.CHOOSE_OPERATION, payload: { operation: "^" } })}
                 >
                   xʸ
                 </Button>
                 <Button
                   variant="ghost"
-                  className="h-16 md:h-20 text-sm font-medium rounded-none hover:bg-primary/10 hover:text-primary transition-colors md:border-none"
+                  className="h-14 md:h-16 text-xs font-bold rounded-none hover:bg-primary/10 hover:text-primary transition-colors"
                   onClick={() => dispatch({ type: ACTIONS.SCIENTIFIC_OPERATION, payload: { operation: "reciprocal" } })}
                 >
                   1/x
