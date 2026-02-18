@@ -1,59 +1,76 @@
-# Enhanced Vite React TypeScript Template
+# Pro Calculator
 
-This template includes built-in detection for missing CSS variables between your Tailwind config and CSS files.
+A clean, modern, and professional web-based calculator built with React, Vite, and Tailwind CSS. It supports basic arithmetic operations, scientific functions, keyboard shortcuts, and maintains a persistent calculation history.
 
-## Features
+## 🚀 Features
 
-- **CSS Variable Detection**: Automatically detects if CSS variables referenced in `tailwind.config.cjs` are defined in `src/index.css`
-- **Enhanced Linting**: Includes ESLint, Stylelint, and custom CSS variable validation
-- **Shadcn/ui**: Pre-configured with all Shadcn components
-- **Modern Stack**: Vite + React + TypeScript + Tailwind CSS
+- **Basic Operations**: Addition, subtraction, multiplication, and division.
+- **Scientific Functions**: Square root (√x), square (x²), exponentiation (xʸ), and reciprocal (1/x).
+- **History Tracking**: Automatically saves your last 10 calculations to local storage.
+- **Keyboard Support**: Fully functional keyboard shortcuts for all operations.
+- **Responsive Design**: optimized for both desktop and mobile devices.
+- **Modern UI**: Built with Radix UI components and Tailwind CSS for a premium look and feel.
 
-## Available Scripts
+## ⌨️ Keyboard Shortcuts
 
-```bash
-# Run all linting (includes CSS variable check)
-npm run lint
+| Key | Operation |
+|-----|-----------|
+| `0-9` | Enter Digits |
+| `.` | Decimal Point |
+| `+` | Addition |
+| `-` | Subtraction |
+| `*` | Multiplication |
+| `/` | Division |
+| `Enter` / `=` | Evaluate |
+| `Backspace` | Delete Digit |
+| `Escape` | Clear All (AC) |
+| `%` | Percentage |
+| `s` | Square Root |
+| `p` | Power (xʸ) |
+| `r` | Reciprocal (1/x) |
+| `a` | Absolute Value |
 
-# Check only CSS variables
-npm run check:css-vars
+## 🛠️ Setup Instructions
 
-# Individual linting
-npm run lint:js    # ESLint
-npm run lint:css   # Stylelint
-```
+### Prerequisites
 
-## CSS Variable Detection
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- [npm](https://www.npmjs.com/) or [Bun](https://bun.sh/)
 
-The template includes a custom script that:
+### Installation
 
-1. **Parses `tailwind.config.cjs`** to find all `var(--variable)` references
-2. **Parses `src/index.css`** to find all defined CSS variables (`--variable:`)
-3. **Cross-references** them to find missing definitions
-4. **Reports undefined variables** with clear error messages
+1. Clone the repository or download the source code.
+2. Navigate to the project directory:
+   ```bash
+   cd react-calculator
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   # or
+   bun install
+   ```
 
-### Example Output
+### Running the Project
 
-When CSS variables are missing:
-```
-❌ Undefined CSS variables found in tailwind.config.cjs:
-   --sidebar-background
-   --sidebar-foreground
-   --sidebar-primary
+1. Start the development server:
+   ```bash
+   npm run dev
+   # or
+   bun dev
+   ```
+2. Open your browser and navigate to `http://localhost:5173`.
 
-Add these variables to src/index.css
-```
+### Building for Production
 
-When all variables are defined:
-```
-✅ All CSS variables in tailwind.config.cjs are defined
-```
+1. Create a production build:
+   ```bash
+   npm run build
+   # or
+   bun run build
+   ```
+2. The production-ready files will be in the `dist` directory.
 
-## How It Works
+## 📄 License
 
-The detection happens during the `npm run lint` command, which will:
-- Exit with error code 1 if undefined variables are found
-- Show exactly which variables need to be added to your CSS file
-- Integrate seamlessly with your development workflow
-
-This prevents runtime CSS issues where Tailwind classes reference undefined CSS variables.
+This project is open-source and available under the MIT License.

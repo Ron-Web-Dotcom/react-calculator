@@ -1,3 +1,14 @@
+/**
+ * Pro Calculator - Main Application
+ * 
+ * A professional calculator featuring:
+ * - Complex state management using useReducer
+ * - Support for standard and scientific operations
+ * - Persistent history stored in LocalStorage
+ * - Comprehensive keyboard support
+ * - Modern, glassmorphism-inspired UI
+ */
+
 import { useReducer, useEffect, useState } from "react"
 import DigitButton from "./DigitButton"
 import OperationButton from "./OperationButton"
@@ -7,6 +18,7 @@ import { ScrollArea } from "./components/ui/scroll-area"
 import { History, Trash2, Keyboard, Calculator as CalcIcon, Eraser } from "lucide-react"
 import { cn } from "./lib/utils"
 
+/** Available actions for the calculator state reducer */
 export const ACTIONS = {
   ADD_DIGIT: "add-digit",
   CHOOSE_OPERATION: "choose-operation",
@@ -22,11 +34,17 @@ export const ACTIONS = {
 
 type ActionType = typeof ACTIONS[keyof typeof ACTIONS]
 
+/** Shape of the calculator state */
 interface State {
+  /** The value currently being entered */
   currentOperand?: string | null
+  /** The previously entered value */
   previousOperand?: string | null
+  /** The current mathematical operation being performed */
   operation?: string | null
+  /** Flag to indicate if the current operand should be overwritten on the next input */
   overwrite?: boolean
+  /** Array of past calculations */
   history: { expression: string; result: string }[]
 }
 
@@ -35,9 +53,13 @@ interface Action {
   payload?: { digit?: string; operation?: string }
 }
 
+/**
+ * Reducer function to handle all state transitions for the calculator.
+ */
 function reducer(state: State, { type, payload }: Action): State {
   switch (type) {
     case ACTIONS.ADD_DIGIT:
+      // Handle overwriting the current display (e.g., after an evaluation)
       if (state.overwrite) {
         return {
           ...state,
@@ -45,9 +67,11 @@ function reducer(state: State, { type, payload }: Action): State {
           overwrite: false,
         }
       }
+      // Prevent multiple leading zeros
       if (payload?.digit === "0" && state.currentOperand === "0") {
         return state
       }
+      // Prevent multiple decimal points
       if (payload?.digit === "." && state.currentOperand?.includes(".")) {
         return state
       }
@@ -57,10 +81,12 @@ function reducer(state: State, { type, payload }: Action): State {
         currentOperand: `${state.currentOperand || ""}${payload?.digit}`,
       }
     case ACTIONS.CHOOSE_OPERATION:
+      // Do nothing if no operands are present
       if (state.currentOperand == null && state.previousOperand == null) {
         return state
       }
 
+      // Allow changing the operation if current operand is empty
       if (state.currentOperand == null) {
         return {
           ...state,
@@ -68,6 +94,7 @@ function reducer(state: State, { type, payload }: Action): State {
         }
       }
 
+      // Move current operand to previous operand if previous is empty
       if (state.previousOperand == null) {
         return {
           ...state,
@@ -77,6 +104,7 @@ function reducer(state: State, { type, payload }: Action): State {
         }
       }
 
+      // Perform intermediate calculation if both operands exist
       return {
         ...state,
         previousOperand: evaluate(state),
@@ -89,6 +117,7 @@ function reducer(state: State, { type, payload }: Action): State {
       let scientificResult = 0
       let scientificExpression = ""
 
+      // Handle scientific operations
       switch (payload?.operation) {
         case "sqrt":
           scientificResult = Math.sqrt(currentVal)
@@ -115,9 +144,11 @@ function reducer(state: State, { type, payload }: Action): State {
         ...state,
         currentOperand: resString,
         overwrite: true,
+        // Update history with the result
         history: [{ expression: scientificExpression, result: resString }, ...state.history].slice(0, 10)
       }
     case ACTIONS.CLEAR:
+      // Reset the calculator to initial state (except history)
       return { ...state, currentOperand: null, previousOperand: null, operation: null, overwrite: false }
     case ACTIONS.DELETE_DIGIT:
       if (state.overwrite) {
@@ -153,6 +184,7 @@ function reducer(state: State, { type, payload }: Action): State {
         currentOperand: (parseFloat(state.currentOperand) * -1).toString()
       }
     case ACTIONS.EVALUATE:
+      // Ensure all necessary components exist for evaluation
       if (
         state.operation == null ||
         state.currentOperand == null ||
@@ -173,6 +205,7 @@ function reducer(state: State, { type, payload }: Action): State {
         history: [{ expression, result }, ...state.history].slice(0, 10)
       }
     case ACTIONS.SET_HISTORY_ITEM:
+      // Recall a result from history back into the calculator display
       return {
         ...state,
         currentOperand: payload?.digit,
@@ -185,6 +218,9 @@ function reducer(state: State, { type, payload }: Action): State {
   }
 }
 
+/**
+ * Helper function to perform the actual mathematical computation based on state.
+ */
 function evaluate({ currentOperand, previousOperand, operation }: State): string {
   const prev = parseFloat(previousOperand || "")
   const current = parseFloat(currentOperand || "")
@@ -211,10 +247,14 @@ function evaluate({ currentOperand, previousOperand, operation }: State): string
   return computation.toString()
 }
 
+/** Formatter for integers to include thousands separators */
 const INTEGER_FORMATTER = new Intl.NumberFormat("en-us", {
   maximumFractionDigits: 0,
 })
 
+/**
+ * Formats a numeric string to include separators and correctly handle decimals.
+ */
 function formatOperand(operand: string | null | undefined): string | undefined {
   if (operand == null) return undefined
   const [integer, decimal] = operand.split(".")
@@ -223,6 +263,7 @@ function formatOperand(operand: string | null | undefined): string | undefined {
 }
 
 function App() {
+  // Initialize state with history from LocalStorage if available
   const [{ currentOperand, previousOperand, operation, history }, dispatch] = useReducer(
     reducer,
     { history: JSON.parse(localStorage.getItem("calc-history") || "[]") }
@@ -231,14 +272,17 @@ function App() {
   const [showHistory, setShowHistory] = useState(false)
   const [pressedKey, setPressedKey] = useState<string | null>(null)
 
+  // Sync history state to LocalStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("calc-history", JSON.stringify(history))
   }, [history])
 
+  // Handle keyboard events
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       let key = e.key
       setPressedKey(key)
+      // Brief timeout to visually indicate a key was pressed
       setTimeout(() => setPressedKey(null), 150)
 
       if (/\d/.test(e.key)) {
